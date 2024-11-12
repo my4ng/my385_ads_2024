@@ -1,2 +1,7 @@
+/.conda
+/data
 /build
 /fynesse.egg-info
+credentials.yaml
+__pycache__
+cache
