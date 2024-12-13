@@ -6,3 +6,5 @@ credentials.yaml
 __pycache__
 cache
 census*
+oa_*
+ks101*

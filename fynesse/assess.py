@@ -12,6 +12,7 @@ import sklearn.feature_extraction"""
 
 """Place commands in this file to assess the data you have downloaded. How are missing values encoded, how are outliers encoded? What do columns represent, makes rure they are correctly labeled. How is the data indexed. Crete visualisation routines to assess the data (e.g. in bokeh). Ensure that date formats are correct and correctly timezoned."""
 
+from sklearn import preprocessing, decomposition, cluster
 import osmnx as ox
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -118,19 +119,55 @@ def visualise_area_price_corr(name: str, joined_df: pd.DataFrame):
     plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
     plt.tight_layout()
 
-def data():
-    """Load the data from access and ensure missing values are correctly encoded as well as indices correct, column names informative, date and times correctly formatted. Return a structured data structure such as a data frame."""
-    df = access.data()
-    raise NotImplementedError
+def plot_dist(dist: pd.Series, xlabel: str, ylabel: str, title: str, bins: int=100, log:bool=True):
+    fig, ax = plt.subplots()
 
-def query(data):
-    """Request user input for some aspect of the data."""
-    raise NotImplementedError
+    ax.hist(dist, bins=bins)
+    median = dist.median()
+    ax.axvline(median, color='k', linestyle='--', label=f'median = {median:2f}')
 
-def view(data):
-    """Provide a view of the data that allows the user to verify some aspect of its quality."""
-    raise NotImplementedError
+    ax.set_title(title)
+    if log:
+        ax.semilogy()
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
 
-def labelled(data):
-    """Provide a labelled set of data ready for supervised learning."""
-    raise NotImplementedError
+    ax.legend()
+
+    plt.tight_layout()
+
+def print_features_corr(response: pd.Series, predictors: pd.DataFrame):
+    corr = predictors.corrwith(response)
+    print(corr.to_string())
+
+def plot_features_matrix(df: pd.DataFrame, scatter=True, value=True):
+    ncols = len(df.columns)
+    if scatter:
+        fig, axs = plt.subplots(ncols, ncols, figsize=(8,8))
+        fig.suptitle("Scatter matrix of features", y=0.92)
+
+        sm = pd.plotting.scatter_matrix(df, ax=axs)
+        for ax in sm.flat:
+            ax.set_xticks([])
+            ax.set_yticks([])
+
+    corr_matrix = df.corr()
+
+    s = 6 + max((ncols - 10) / 2, 0)
+    fig, ax = plt.subplots(figsize=(s,s))
+
+    im = ax.matshow(corr_matrix, vmin=-1.0, vmax=1.0, cmap='RdBu')
+
+    ax.set_xticks(range(0, ncols), df.columns, fontsize=12, rotation=45, ha='left')
+    ax.set_yticks(range(0, ncols), df.columns, fontsize=12)
+    ax.set_xticklabels(df.columns)
+    ax.set_yticklabels(df.columns)
+    ax.set_title("Correlation matrix of features")
+    if value:
+        for (i, j), z in np.ndenumerate(corr_matrix):
+            ax.text(i, j, f'{z:0.2f}', ha='center', va='center')
+
+    fig.colorbar(im, ax=ax, orientation='horizontal', shrink=0.8, pad=0.05)
+    
+    plt.tight_layout()
+    plt.show()

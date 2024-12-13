@@ -27,7 +27,17 @@ VERSION = "0.1.0"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "pandas", "numpy", "jupyter", "matplotlib", 
+    "pandas",
+    "pandarallel",
+    "numpy",
+    "jupyter", 
+    "matplotlib", 
+    "pymysql",
+    "jupysql", 
+    "osmnx",
+    "scikit-learn",
+    "statsmodels",
+    "pymer4"
 ]
 
 # What packages are optional?
